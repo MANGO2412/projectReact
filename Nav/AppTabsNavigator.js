@@ -1,7 +1,8 @@
 import React from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import Icon from '@mdi/react';
+import { mdiAccountMultiplePlus } from '@mdi/js';
 // Importa tus componentes de pestaña
 import HomeScreen from './HomeScreen';
 import NotificationsScreen from './NotificationsScreen';
@@ -27,12 +28,12 @@ function AppTabsNavigator() {
         }}
       />
       <Tab.Screen
-        name="Notifications"
+        name="Agregar paciente"
         component={NotificationsScreen}
         options={{
-          tabBarLabel: 'Notifications',
+          tabBarLabel: 'Agregar paciente',
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bell" color={color} size={26} />
+            <MaterialCommunityIcons name="" color={color} size={26} />
           ),
         }}
       />

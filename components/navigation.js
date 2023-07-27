@@ -45,9 +45,19 @@ const AppTabsNavigator = () => {
         name="Notifications"
         component={NotificationsScreen}
         options={{
-          tabBarLabel: 'Notifications',
+          tabBarLabel: 'Create patient',
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="bell" color={color} size={26} />
+            <MaterialCommunityIcons name="account-plus-outline" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Doctor's List"
+        component={NotificationsScreen}
+        options={{
+          tabBarLabel: 'Doctors List',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="doctor" color={color} size={26} />
           ),
         }}
       />
@@ -64,7 +74,56 @@ const AppTabsNavigator = () => {
     </Tab.Navigator>
   );
 };
-
+const AppTabsNavigatordoc = () => {
+  return (
+    <Tab.Navigator
+      initialRouteName="Home"
+      activeColor="#39a969"
+      barStyle={{ backgroundColor: 'white' }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="home" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={NotificationsScreen}
+        options={{
+          tabBarLabel: 'Create patient',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="account-plus-outline" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Crear Receta"
+        component={NotificationsScreen}
+        options={{
+          tabBarLabel: 'Crear receta',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="doctor" color={color} size={26} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="account" color={color} size={26} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
 const Stack = createNativeStackNavigator();
 
 const NavContener = () => {
@@ -91,6 +150,7 @@ const NavContener = () => {
           };
       }
     },
+    
     {
       isLoading: true,
       isSignout: false,
