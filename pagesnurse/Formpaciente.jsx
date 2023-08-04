@@ -5,6 +5,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import axios from 'axios';
 import {Picker} from '@react-native-picker/picker';
 import { ScrollView } from 'react-native';
+import { json } from 'react-router-dom';
 
 const FormPaciente = () => {
   const formArray = [1, 2,3];
@@ -193,40 +194,30 @@ const inputHandle = (name, value) => {
 ///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
 const [patient, setPatient] = useState(null);
 const finalSubmit = () => {
-  if (
-    patient
-  ) {
-    // Llamar a la función para enviar los datos
-    sendFormData1();
-    console.log(formData1);
-  } 
+    console.log(selectedDeviceId)
+    console.log(patient)
+    console.log(selectedDoctorId)
+
+  // if (
+  //   patient && selectedDeviceId && selectedDoctorId
+  // ) {
+  //   // Llamar a la función para enviar los datos
+  //   sendFormData1();
+  //   console.log(formData1);
+  // } 
 };
 
 ////esto puede que se elimine xd es de pruebaf
 const [formData1, setFormData1] = useState({});
 ////esteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
-useEffect(()=>{
-  setFormData1((prevFormData1) => ({
-    ...prevFormData1,
-     hospital,
-     patient:patient,
-     device:selectedDeviceId,
-     doctor:selectedDoctorId
-  }));
-},[])
-
 const sendFormData1 = async () => {
   try {
-    const response = await fetch('https://apifullheath.onrender.com/files/assign', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData1),
-    });
+     console.log(formData1)
 
-    if (response.ok) {
+    const response = await axios.post('https://apifullheath.onrender.com/files/assign', {hospital,patient:patient,device:selectedDeviceId,doctor:selectedDoctorId});
+      console.log(response.data)
+    if (response.data) {
       console.log(formData1)
       Toast.show({
         type: 'success',
@@ -235,6 +226,7 @@ const sendFormData1 = async () => {
         autoHide: true,
       });
     } else {
+      console.log(response.json())
       console.log('Error al enviar el formulario');
       Toast.show({
         type: 'error',
@@ -255,8 +247,8 @@ const sendFormData1 = async () => {
 };
 
 //////////////////////////////////////////////  Formulario de picker para agregar a los doctores  /////////////////////////////////////
-  const [doctors, setDoctors] = useState([]); // Estado para almacenar la lista de doctores
-  const [selectedDoctorId, setSelectedDoctorId] = useState(null); // Estado para almacenar el ID del doctor seleccionado
+  const [doctors, setDoctors] = useState(['valuee']); // Estado para almacenar la lista de doctores
+  const [selectedDoctorId, setSelectedDoctorId] = useState("valor no cambiado"); // Estado para almacenar el ID del doctor seleccionado
 
   useEffect(() => {
     // Función para obtener la lista de doctores desde la API
@@ -296,6 +288,7 @@ const sendFormData1 = async () => {
 ///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
   return (
     <ScrollView contentContainerStyle={styles.container}>
+    <Toast/>
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Image
         style={{ width: 250, height: 52, alignSelf: 'center', marginBottom: 40 }}
@@ -496,7 +489,7 @@ const sendFormData1 = async () => {
       <Text>ID del dispositivo seleccionado: {selectedDeviceId}</Text>
 
             </View>
-            <TouchableOpacity onPress={finalSubmit} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 80, alignSelf: 'center' }}>
+            <TouchableOpacity onPress={sendFormData1} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 80, alignSelf: 'center' }}>
               <Text style={{ color: '#FFF', padding: 8, textAlign: 'center' }}>Asignar Doctor</Text>
             </TouchableOpacity>
   </View>
