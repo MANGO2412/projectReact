@@ -14,9 +14,15 @@ import NotificationsScreen from '../Nav/NotificationsScreen';
 import ProfileScreen from '../Nav/ProfileScreen';
 import SplashScreen  from '../screens/SplashScreen'
 import Login from '../screens/Login';
+import Formpaciente from '../pagesnurse/Formpaciente';
+import Receta from '../pagesdoctor/Receta'
 
+const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 
+
+
+//alerta de inicio de sesion
 const showAlert = () => {
   Alert.alert(
     'Error al iniciar sesion',
@@ -24,13 +30,19 @@ const showAlert = () => {
   );
 };
 
+
+//equipo de enfermeria
 const AppTabsNavigator = () => {
   return (
+    <>
     <Tab.Navigator
       initialRouteName="Home"
       activeColor="#39a969"
       barStyle={{ backgroundColor: 'white' }}
     >
+    
+
+
       <Tab.Screen
         name="Home"
         component={HomeScreen}
@@ -41,9 +53,10 @@ const AppTabsNavigator = () => {
           ),
         }}
       />
+      
       <Tab.Screen
-        name="Notifications"
-        component={NotificationsScreen}
+        name="Form" t4
+        component={Formpaciente}
         options={{
           tabBarLabel: 'Create patient',
           tabBarIcon: ({ color }) => (
@@ -72,10 +85,14 @@ const AppTabsNavigator = () => {
         }}
       />
     </Tab.Navigator>
+    </>
   );
 };
+
+//Doctor
 const AppTabsNavigatordoc = () => {
   return (
+    <>
     <Tab.Navigator
       initialRouteName="Home"
       activeColor="#39a969"
@@ -83,7 +100,7 @@ const AppTabsNavigatordoc = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeScreendoc}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color }) => (
@@ -122,10 +139,14 @@ const AppTabsNavigatordoc = () => {
         }}
       />
     </Tab.Navigator>
+    <Stack.Navigator>
+         <Stack.Screen name='recta' component={<Receta/>}/>
+     </Stack.Navigator>
+   </> 
   );
 };
-const Stack = createNativeStackNavigator();
 
+//Es el menu de la aplicacion
 const NavContener = () => {
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
@@ -209,60 +230,9 @@ const NavContener = () => {
     []
   );
 
-  // return (
-  //   <AuthContext.Provider value={authContext}>
-  //     <NavigationContainer>
-  //       <Stack.Navigator
-  //       initialRouteName="Home"
-  //     activeColor="#39a969"
-  //     barStyle={{ backgroundColor: 'white' }}>
-  //         {state.isLoading ? (
-  //           <Stack.Screen name="Splash" component={SplashScreen} />
-  //         ) : state.userToken == null ? (
-  //           <Stack.Screen
-  //             name="SignIn"
-  //             component={Login}
-  //             options={{
-  //               title: 'Sign in',
-  //               animationTypeForReplace: state.isSignout ? 'pop' : 'push',
-  //             }}
-  //           />
-  //         ) : (
-  //           // Instead of rendering HomeScreen, use AppTabsNavigator here
-  //            <Stack.Screen name="Home"
-  //       options={{
-  //         tabBarLabel: 'home',
-  //         tabBarIcon: ({ color }) => (
-  //           <MaterialCommunityIcons name="home" color={color} size={14} />
-  //         ),
-  //       }}>
-  //             {props => <AppTabsNavigator {...props} />}
-  //           </Stack.Screen>,
-  //           <Stack.Screen name="N"
-  //       options={{
-  //         tabBarLabel: 'home',
-  //         tabBarIcon: ({ color }) => (
-  //           <MaterialCommunityIcons name="home" color={color} size={14} />
-  //         ),
-  //       }}>
-  //             {props => <AppTabsNavigator {...props} />}
-  //           </Stack.Screen> 
-
-  //         )}
-  //       </Stack.Navigator>
-  //     </NavigationContainer>
-  //   </AuthContext.Provider>
-  // );
-
-
    return (
     <AuthContext.Provider value={authContext}>
         <NavigationContainer>
-        
-          {/* <Stack.Navigator
-          initialRouteName="Home"
-        activeColor="#39a969"
-        barStyle={{ backgroundColor: 'white' }}> */}
             {state.isLoading ? (
                 <Stack.Navigator>
                     <Stack.Screen name="Splash" component={SplashScreen} />
@@ -280,7 +250,11 @@ const NavContener = () => {
               />
             </Stack.Navigator>
             ) : (
-                <AppTabsNavigator/>
+            <Stack.Navigator>
+                 <Stack.Screen name=" " component={AppTabsNavigator} />
+                 <Stack.Screen name="Receta" component={Receta}/>
+     
+             </Stack.Navigator>
             )
             }
         </NavigationContainer>

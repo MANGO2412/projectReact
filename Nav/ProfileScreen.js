@@ -1,21 +1,22 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity,Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
-import { AuthContext } from '../store/AuthContext';
 import axios from 'axios';
+import AuthContext from '../store/AuthContext';
 
 function ProfileScreen() {
-  const { signOut } = useContext(AuthContext);
   const [data, setData] = useState(null);
-  
+  const { signOut}= useContext(AuthContext)
   const fetch = async () => {
     try {
       let id = await SecureStore.getItemAsync('user');
-      const response = await axios.get('https://apifullheath.onrender.com/medicalUsrs/' + id); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
+      console.log(id)
+      const response = await axios.get('https://apifullheath.onrender.com/medicalUsrs/' +id ); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
+     
       setData(response.data);
-    } catch (error) {
-      console.error('Error al obtener los pacientes:', error);
+        } catch (error) {
+      console.error('Error al cargar perfil:', error);
     }
   };
 
@@ -23,33 +24,44 @@ function ProfileScreen() {
      fetch()
   }, []);
 
+  if (!data) {
+    // Data is not available yet, display a loading message or spinner
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
+      <View style={styles.container}>
       {/* <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="black" />
       </TouchableOpacity> */}
      <View style={styles.profileContainer}>
-      <Text style={styles.name}>{data[0]['Medical_info'].name} {data[0]["Medical_info"].lastname}</Text>
+      <Text style={styles.name}>{data[0]?data[0]['Medical_info'].name:"prieba"} {data[0]?data[0]["Medical_info"].lastname:"jajjaja"}</Text>
       </View>
       <View style={styles.infoContainer}>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Especialty:</Text>
-          <Text style={styles.infoValue}>{data[0]["Medical_info"].speciality}</Text>
+          <Text style={styles.infoValue}>{data[0]?data[0]["Medical_info"].speciality:"kkaka"}</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Email:</Text>
-          <Text style={styles.infoValue}>{data[0].email}</Text>
+          <Text style={styles.infoValue}>{data[0]?data[0].email:"jajaja"}</Text>
         </View>
         <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>Phone Number:</Text>
-          <Text style={styles.infoValue}>{data[0]["Medical_info"].phone}</Text>
+          <Text style={styles.infoValue}>{data[0]?data[0]["Medical_info"].phone:"jajaj"}</Text>
         </View>
-        <TouchableOpacity title="Sign out"  onPress={signOut}>
-         </TouchableOpacity>
+        {/* <TouchableOpacity title="Sign out"/> */}
+        <Button title="logout" onPress={()=>signOut()}/>
+
      </View>
      </View>
-  )}
+  );
+  
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Picker, Image } from 'react-native';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 
 const doctorOptions = ['Jose ramiro', 'Vergamota Lopez', 'Patrick zorrano'];
 const patientOptions = ['Jose Martinez', 'Vergamota culo', 'Patric perez'];

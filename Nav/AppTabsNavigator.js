@@ -1,8 +1,6 @@
 import React from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Icon from '@mdi/react';
-import { mdiAccountMultiplePlus } from '@mdi/js';
 // Importa tus componentes de pestaña
 import HomeScreen from './HomeScreen';
 import NotificationsScreen from './NotificationsScreen';

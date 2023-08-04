@@ -2,25 +2,22 @@ import { Image } from 'react-native';
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Picker } from 'react-native';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/react-toastify';
 
-const App = () => {
-  const formArray = [1, 2, 3];
+const formpaciente = () => {
+  const formArray = [1, 2];
   const [formNo, setFormNo] = useState(formArray[0]);
   const [state, setState] = useState({
     name: '',
     lastname: '',
+    age:'',
     phone: '',
-    email: '',
+    emergencyPhone:'',
+    DoB:'',
     weight: '',
     height: '',
-    imc: '',
-    bloodtype:'',
-    date:'',
-    diagnostic:'',
-    symptoms:'',
-    drugalergy: '',
-    fruits: ['Banana', 'Cherry', 'Lemon']
+    typeBlood:'',
+    hospital:0
   });
   const [selectedFruit, setSelectedFruit] = useState('Cherry');
   const [formData, setFormData] = useState({});
@@ -37,13 +34,13 @@ const App = () => {
   };
 
   const next = () => {
-    if (formNo === 1 && state.name && state.lastname && state.phone && state.email) {
+    if (formNo === 1 && state.name && state.lastname && state.age && state.phone && state.emergencyPhone && state.DoB ) {
       if (state.phone.length === 10) {
         setFormNo(formNo + 1);
       } else {
         toast.error('Please enter a valid phone number');
       }
-    } else if (formNo === 2 && state.weight && state.height && state.imc && state.drugalergy) {
+    } else if (formNo === 2 && state.weight && state.height && state.typeBlood) {
       setFormNo(formNo + 1);
     } else {
       toast.error('Please fill up all input fields');
@@ -55,7 +52,7 @@ const App = () => {
   };
 
   const finalSubmit = () => {
-    if (state.name && state.lastname && state.phone && state.email && state.weight && state.height && state.imc && state.drugalergy ) {
+    if (state.name && state.lastname && state.age && state.phone && state.emergencyPhone && state.DoB && state.weight && state.height && state.typeBlood) {
       console.log(formData); // Mostrar datos del formulario en la consola
       toast.success('Form submitted successfully');
     } else {
@@ -77,7 +74,7 @@ const App = () => {
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Image 
         style={{ width: 250, height: 52, alignSelf: 'center', marginBottom: 40 }}
-        source={require('./img/logonav.png')} 
+        source={require('../img/logonav.png')} 
       />
       <ToastContainer />
       <View
@@ -155,6 +152,15 @@ const App = () => {
               />
             </View>
             <View style={{ marginBottom: 8 }}>
+              <Text style={{ marginTop: 5, fontSize: 16 }}>Edad del paciente</Text>
+              <TextInput
+                value={state.age}
+                onChangeText={(value) => inputHandle('age', value)}
+                style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
+                placeholder="age"
+              />
+            </View>
+            <View style={{ marginBottom: 8 }}>
               <Text style={{ marginTop: 5, fontSize: 16 }}>Numero de celular</Text>
               <TextInput
                 value={state.phone}
@@ -164,12 +170,12 @@ const App = () => {
               />
             </View>
             <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 5, fontSize: 16 }}>Email del paciente</Text>
+              <Text style={{ marginTop: 5, fontSize: 16 }}>Feha de ingreso</Text>
               <TextInput
-                value={state.email}
-                onChangeText={(value) => inputHandle('email', value)}
+                value={state.DoB}
+                onChangeText={(value) => inputHandle('DoB', value)}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4, marginBottom:10 }}
-                placeholder="Email"
+                placeholder="DoB"
               />
             </View>
             <TouchableOpacity onPress={next} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 70, alignSelf:'center' }}>
@@ -202,23 +208,12 @@ const App = () => {
               />
             </View>
             <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 5, fontSize: 16 }}>Masa corporal</Text>
+              <Text style={{ marginTop: 5, fontSize: 16 }}>TypeBlood</Text>
               <TextInput
-                value={state.imc}
-                onChangeText={(value) => inputHandle('imc', value)}
+                value={state.typeBlood}
+                onChangeText={(value) => inputHandle('typeBlood', value)}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
-                placeholder="Body mass(kg)"
-                keyboardType="numeric"
-                multiline
-              />
-            </View>
-            <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 5, fontSize: 16 }}>Alergias</Text>
-              <TextInput
-                value={state.drugalergy}
-                onChangeText={(value) => inputHandle('drugalergy', value)}
-                style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
-                placeholder="Alergies"
+                placeholder="typeBlood"
                 multiline
               />
             </View>
@@ -233,33 +228,10 @@ const App = () => {
               <TouchableOpacity onPress={pre} style={{ backgroundColor: '#39A969', borderRadius: 4 ,textAlign:'center', fontSize:16}}>
                 <Text style={{ color: '#FFF', padding: 8 }}>Previous</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={next} style={{ backgroundColor: '#39A969', borderRadius: 4 }}>
-                <Text style={{ color: '#FFF', padding: 8 }}>Next</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-
-        {formNo === 3 && (
-          <View>
-            <Text style={{ marginTop: 12, marginBottom: 10, fontSize: 22 }}>Assign device</Text>
-            <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 5, fontSize: 16 }}>VPE-456</Text>
-              <Picker
-                selectedValue={selectedFruit}
-                onValueChange={(itemValue) => setSelectedFruit(itemValue)}
-              >
-                {state.fruits.map((fruit, index) => (
-                  <Picker.Item key={index} label={fruit} value={fruit} />
-                ))}
-              </Picker>
-            </View>
-            <TouchableOpacity onPress={pre} style={{ backgroundColor: '#39A969', borderRadius: 4,width: 80, alignSelf:'center', marginBottom:10 }}>
-              <Text style={{ color: '#FFF', padding: 8 , textAlign:'center'}}>Previous</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={finalSubmit} style={{ backgroundColor: '#39A969', borderRadius: 4,width: 80, alignSelf:'center' }}>
+              <TouchableOpacity onPress={finalSubmit} style={{ backgroundColor: '#39A969', borderRadius: 4,width: 80, alignSelf:'center' }}>
               <Text style={{ color: '#FFF', padding: 8,textAlign:'center' }}>Submit</Text>
             </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -267,4 +239,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default formpaciente;

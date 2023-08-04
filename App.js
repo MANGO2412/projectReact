@@ -1,25 +1,23 @@
+// este es el real 
 import * as React from 'react';
 
-//codigo de gael
-// import { NavigationContainer } from '@react-navigation/native';
-// import AppTabsNavigator from './Nav/AppTabsNavigator';
-
-// export default function App() {
-//   return (
-//     <r>
-//     <AppTabsNavigator />
-//   </NavigationContainer>
-// );
-// }
-
-
 import NavContener from './components/navigation';
+
+
 export default function App(){
    return (
       <NavContener/>
    )
 }
 
+// import * as React from 'react';
 
+// import HomeScreendoc from './pagesdoctor/Homescreendoc';
+// import Receta from './pagesdoctor/Receta'
+// import MainStack from './components/MainStack';
 
-
+// export default function App(){
+//    return (
+//      <MainStack/>
+//    )
+// }

@@ -1,25 +1,55 @@
-import React from 'react';
+import {React, useEffect, useState} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+// import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
+import Boton from '../components/Boton';
 
-export function ListP() {
+function HomeScreendoc() {
+  const [data, setData] = useState(null);
+
+  const fetch = async () => {
+    try {
+      // let id = await SecureStore.getItemAsync('user');
+      const response = await axios.get('https://apifullheath.onrender.com/files/assigned/' + 0); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
+      setData(response.data);
+        } catch (error) {
+      console.error('Error al cargar los pacientes:', error);
+    }
+  };
+  useEffect(() => {
+    fetch()
+ }, []);
+
+ if (!data) {
+  // Data is not available yet, display a loading message or spinner
+  return (
+    <View style={styles.container}>
+      <Text>Loading...</Text>
+    </View>
+  );
+}
+
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.titContainer}>
-        <Text style={styles.tit}>Lista de pacientes</Text>
+        <Text style={styles.tit}>Lista de pacientes asignados</Text>
       </View>
       <View style={styles.tarjeta}>
         <View style={styles.nombre}>
         <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Patient's name: </Text>
-          <Text style={{ fontSize: 15 }}>Gael Breton</Text>
+          <Text style={{ fontSize: 15 }}>{data[0]?data[0]['patient_details'].name:"prieba"} {data[0]?data[0]["patient_details"].lastname:"zi"}</Text>
         </View>
         <View style={styles.descrip}>
         <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Diagnostico: </Text>
-          <Text style={{ fontSize: 15 }}>Anorexia y herpes</Text>
+          <Text style={{ fontSize: 15 }}>{data[0]?data[0]['patient_details'].name:"prieba"}</Text>
         </View>
         <View style={{ alignItems: 'center' }}>
-        <TouchableOpacity style={styles.boton} onPress={() => console.log('Hola')}>
-          <Text style={styles.botonTexto}>Ver paciente</Text>
-        </TouchableOpacity>
+        <Boton text = "ver el paciente"
+          onPress = {() => {
+            NavigationPreloadManager.navigate('receta')
+          }}
+        />
         </View>
       </View>
     </ScrollView>
@@ -74,3 +104,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+export default HomeScreendoc;

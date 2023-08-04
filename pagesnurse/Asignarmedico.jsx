@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from 'react-native';
 import DoctorFormModal from './DoctorFormModal';
 
-export function asignarmedico() {
+export function Asignarmedico() {
   const [modalVisible, setModalVisible] = useState(false);
 
   const openModal = () => {
