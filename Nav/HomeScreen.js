@@ -1,32 +1,69 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useCallback} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import axios from 'axios';
-import Boton from '../components/Boton';
+import Toast from 'react-native-toast-message';
+
+import { useFocusEffect } from '@react-navigation/native';
+import * as SecureStore from 'expo-secure-store';
 
 
 function HomeScreen({navigation}) {
   const [patients, setPatients] = useState([]);
 
+
   // Función para obtener los datos de los pacientes desde la API utilizando Axios
   const fetchPatients = async () => {
     try {
-      const response = await axios.get('https://apifullheath.onrender.com/files/byHospital/0'); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
+      const response = await axios.get('https://apifullheath.onrender.com/files/byHospital/0/active'); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
       setPatients(response.data);
+      await SecureStore.setItemAsync('files',JSON.stringify(response.data))
     } catch (error) {
       console.error('Error al obtener los pacientes:', error);
+      setPatients([])
     }
   };
 
+  //dar de alta los expedientes
+  const lossFile=async (id)=>{
+    try{
+      let resp = await axios.post('https://apifullheath.onrender.com/files/disable/'+id);
+      console.log(resp.data) 
+      Toast.show({
+        type:'success',
+        text1:'expediente dado de  alta',
+        autoHide:true
+      })
+    }catch(error){console.log()}
+
+    await fetchPatients();
+
+  }
+
+
+
   // Llama a fetchPatients al cargar el componente
-  useEffect(() => {
-    fetchPatients();
-  }, []);
+  //codigo para que habilite la actualizacion del los datos de forma automatica
+  useFocusEffect(
+    useCallback(() => {
+       fetchPatients()
+      // Do something when the screen is focused
+      return () => {};
+    }, [])
+  );
+
+  
 
   return (
-   <ScrollView contentContainerStyle={styles.container}>
-    <View style={styles.titContainer}>
-      <Text style={styles.tit}>Lista de pacientes</Text>
-    </View>
+    <View>
+       <View style={styles.titContainer}>
+         <Toast/>
+      </View>
+    
+    <ScrollView contentContainerStyle={styles.container}>
+   
+     <View style={styles.titContainer}>
+         <Text style={styles.tit}>Lista de pacientes</Text>
+      </View>
     {patients.map((patient) => (
       <View key={patient._id} style={styles.tarjeta}>
         <View style={styles.nombre}>
@@ -34,20 +71,19 @@ function HomeScreen({navigation}) {
           <Text style={{ fontSize: 15 }}>{patient.patient_details.name} {patient.patient_details.lastname}</Text>
         </View>
         <View style={styles.descrip}>
-          <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Doctor asignado: </Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Doctor's assigned: </Text>
           {patient.doctor_details ? (
             <Text style={{ fontSize: 15 }}>{patient.doctor_details.Medical_info.name} {patient.doctor_details.Medical_info.lastname}</Text>
           ) : (
             <Text style={{ fontSize: 15 }}>No asignado</Text>
           )}
         </View>
-        <View style={{ alignItems: 'center' }}>
+        <View style={{alignItems:'center'}}>
         <TouchableOpacity
         style={{
           backgroundColor: '#39a969',
           padding: 10,
           borderRadius: 8,
-          alignItems: 'center',
           marginTop: 20,
         }}
         onPress={() => {
@@ -58,11 +94,29 @@ function HomeScreen({navigation}) {
           Ir a Receta
         </Text>
       </TouchableOpacity>
+
+
+      <TouchableOpacity
+        style={{
+          backgroundColor: '#39a969',
+          padding: 10,
+          borderRadius: 8,
+          marginTop: 20,
+        }}
+        onPress={()=>{lossFile(patient['_id'])}}
+      >
+        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+          Dar de Alta
+        </Text>
+      </TouchableOpacity>
       
         </View>
       </View>
     ))}
+     
   </ScrollView>
+    </View>
+   
   );
 }
 
@@ -72,14 +126,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 50,
-    backgroundColor: '#fff'
+    backgroundColor: 'white'
   },
   titContainer: {
     marginBottom: 50,
     alignItems: 'center',
   },
   tarjeta: {
-    width: '90%',
+    width: '100',
     borderRadius: 5,
     backgroundColor: '#fff',
     padding: 10,
@@ -107,7 +161,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 10
   },
   botonTexto: {
     color: '#39a969',

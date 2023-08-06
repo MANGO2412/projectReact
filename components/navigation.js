@@ -1,22 +1,24 @@
+//imports to use libraries of react native
 import React from 'react';
 import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as SecureStore from 'expo-secure-store';
-
 import AuthContext from '../store/AuthContext';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// Import your tab components here
+// Import  the screens here
 import HomeScreen from '../Nav/HomeScreen';
-import NotificationsScreen from '../Nav/NotificationsScreen';
 import ProfileScreen from '../Nav/ProfileScreen';
 import SplashScreen  from '../screens/SplashScreen'
 import Login from '../screens/Login';
 import Formpaciente from '../pagesnurse/Formpaciente';
+import CreateFile from '../pagesnurse/CreateFIle';
 import Receta from '../pagesdoctor/Receta'
+import Infopac from '../pagesdoctor/Infopac'
 
+//initialize the variables
 const Stack = createNativeStackNavigator();
 const Tab = createMaterialBottomTabNavigator();
 
@@ -31,18 +33,15 @@ const showAlert = () => {
 };
 
 
-//equipo de enfermeria
-const AppTabsNavigator = () => {
-  return (
-    <>
+//Nurse Nav
+const NurseTabsNavgator=()=>(
+  <>
     <Tab.Navigator
       initialRouteName="Home"
       activeColor="#39a969"
       barStyle={{ backgroundColor: 'white' }}
     >
     
-
-
       <Tab.Screen
         name="Home"
         component={HomeScreen}
@@ -55,22 +54,12 @@ const AppTabsNavigator = () => {
       />
       
       <Tab.Screen
-        name="Form" t4
-        component={Formpaciente}
+        name="Form" 
+        component={CreateFile}
         options={{
-          tabBarLabel: 'Create patient',
+          tabBarLabel: 'Create File',
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="account-plus-outline" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Doctor's List"
-        component={NotificationsScreen}
-        options={{
-          tabBarLabel: 'Doctors List',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="doctor" color={color} size={26} />
           ),
         }}
       />
@@ -86,67 +75,56 @@ const AppTabsNavigator = () => {
       />
     </Tab.Navigator>
     </>
-  );
-};
+)
 
-//Doctor
-const AppTabsNavigatordoc = () => {
-  return (
-    <>
-    <Tab.Navigator
-      initialRouteName="Home"
-      activeColor="#39a969"
-      barStyle={{ backgroundColor: 'white' }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreendoc}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="home" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          tabBarLabel: 'Create patient',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-plus-outline" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Crear Receta"
-        component={NotificationsScreen}
-        options={{
-          tabBarLabel: 'Crear receta',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="doctor" color={color} size={26} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account" color={color} size={26} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
-    <Stack.Navigator>
-         <Stack.Screen name='recta' component={<Receta/>}/>
-     </Stack.Navigator>
-   </> 
-  );
-};
+//Doctor Nav
+const DocTabsNavigator=()=>(
+  <>
+  <Tab.Navigator
+    initialRouteName="HomeDoctor"
+    activeColor="#39a969"
+    barStyle={{ backgroundColor: 'white' }}
+  >
+    <Tab.Screen
+      name="HomeDoctor"
+      component={HomeScreen}
+      options={{
+        tabBarLabel: 'see patients',
+        tabBarIcon: ({ color }) => (
+          <MaterialCommunityIcons name="home" color={color} size={26} />
+        ),
+      }}
+    />
+  
+    <Tab.Screen
+      name="Profile"
+      component={ProfileScreen}
+      options={{
+        tabBarLabel: 'Profile',
+        tabBarIcon: ({ color }) => (
+          <MaterialCommunityIcons name="account" color={color} size={26} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Profile"
+      component={Infopac}
+      options={{
+        tabBarLabel: 'info',
+        tabBarIcon: ({ color }) => (
+          <MaterialCommunityIcons name="account" color={color} size={26} />
+        ),
+      }}
+    />
+  </Tab.Navigator>
+ </>
+)
+
+
+
 
 //Es el menu de la aplicacion
+
 const NavContener = () => {
   const [state, dispatch] = React.useReducer(
     (prevState, action) => {
@@ -155,6 +133,7 @@ const NavContener = () => {
           return {
             ...prevState,
             userToken: action.token,
+            TypeUser: action.typeUser,
             isLoading: false,
           };
         case 'SIGN_IN':
@@ -162,12 +141,14 @@ const NavContener = () => {
             ...prevState,
             isSignout: false,
             userToken: action.token,
+            TypeUser:action.typeUser
           };
         case 'SIGN_OUT':
           return {
             ...prevState,
             isSignout: true,
             userToken: null,
+            TypeUser:null
           };
       }
     },
@@ -182,16 +163,17 @@ const NavContener = () => {
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
     const bootstrapAsync = async () => {
-      let userToken;
+      let userToken,typeuser;
 
       try {
         // Restore token stored in `SecureStore` or any other encrypted storage
         userToken = await SecureStore.getItemAsync('user');
+        typeuser=await SecureStore.getItemAsync('typeUser')
       } catch (e) {
         userToken = null;
       }
 
-      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
+      dispatch({ type: 'RESTORE_TOKEN', token: userToken,typeUser:typeuser });
     };
 
     bootstrapAsync();
@@ -209,18 +191,21 @@ const NavContener = () => {
         });
 
         let mess = await resp.json();
-
-        console.log(mess);
-        if (mess[0] != null) {
-          await SecureStore.setItemAsync('user', String(mess[0]['_id']));
+        let res=mess[0];
+        if (res != null) {
+          await SecureStore.setItemAsync('user',String(res["_id"]));
+          await SecureStore.setItemAsync('hospital',String(res["Medical_info"].hospital));
+          await SecureStore.setItemAsync('typeUser',res.typeUser);
         } else {
           showAlert();
         }
 
-        dispatch({ type: 'SIGN_IN', token: mess[0] ? ['_id'] : null });
+        dispatch({ type: 'SIGN_IN', token: res ? ["_id"]: null ,typeUser:mess[0]?mess[0].typeUser : null});
       },
       signOut: async () => {
         await SecureStore.deleteItemAsync('user');
+        await SecureStore.deleteItemAsync('typeUser')
+        await SecureStore.deleteItemAsync('hospital');
         dispatch({ type: 'SIGN_OUT' });
       },
       signUp: async (data) => {
@@ -249,11 +234,11 @@ const NavContener = () => {
                 }}
               />
             </Stack.Navigator>
-            ) : (
+            ) :(
             <Stack.Navigator>
-                 <Stack.Screen name=" " component={AppTabsNavigator} />
+                <Stack.Screen name=" " component={state.TypeUser=="Doctor"?(DocTabsNavigator):(NurseTabsNavgator)}/>
                  <Stack.Screen name="Receta" component={Receta}/>
-     
+                 <Stack.Screen name="CreateAddFile" component={Formpaciente}/>
              </Stack.Navigator>
             )
             }

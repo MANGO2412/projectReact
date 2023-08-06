@@ -1,82 +1,320 @@
-import { Image } from 'react-native';
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Picker } from 'react-native';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/react-toastify';
+import { Image, View, Text, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
+import React, { useState,useEffect,useCallback } from 'react';
+import Toast from 'react-native-toast-message';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import axios from 'axios';
+import {Picker} from '@react-native-picker/picker';
+import { ScrollView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+//get info file
+import * as SecureStore from 'expo-secure-store';
 
-const formpaciente = () => {
-  const formArray = [1, 2];
+const FormPaciente = ({navigation}) => {
+  const formArray = [1, 2,3];
   const [formNo, setFormNo] = useState(formArray[0]);
   const [state, setState] = useState({
-    name: '',
-    lastname: '',
+    name:'',
+    lastname:'',
     age:'',
-    phone: '',
+    phone:'',
     emergencyPhone:'',
-    DoB:'',
-    weight: '',
-    height: '',
+    height:'',
     typeBlood:'',
-    hospital:0
-  });
-  const [selectedFruit, setSelectedFruit] = useState('Cherry');
-  const [formData, setFormData] = useState({});
+    hospital: 0,
+    DoB:'',
+    weight:'',
 
-  const inputHandle = (name, value) => {
-    setState((prevState) => ({
-      ...prevState,
-      [name]: value
-    }));
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value
-    }));
+  });
+
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [patientId, setPatientId] = useState(null);
+  const [formData, setFormData] = useState({});
+  ////esto puede que se elimine xd es de pruebaf
+  const [formData1, setFormData1] = useState({});
+
+
+
+  //limpiar el formulario
+  useFocusEffect(
+    useCallback(() => {
+       async function remove(){
+         await SecureStore.deleteItemAsync('patient')
+       }
+      // Do something when the screen is focused
+      return () => {
+
+        remove()
+        // Do something when the screen is unfocused
+        // Useful for cleanup functions
+      };
+    }, [])
+  );
+
+
+  //funciones del movimiento del fomulario
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
   };
 
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    inputHandle('DoB', date.toISOString().split('T')[0]);
+    hideDatePicker();
+  };
+
+  const handleNextAndSubmit = () => {
+    if (
+      state.name &&
+      state.lastname &&
+      state.age &&
+      state.phone &&
+      state.emergencyPhone &&
+      state.DoB &&
+      state.weight &&
+      state.height &&
+      state.typeBlood 
+    ) {
+      // Llamar a la función para enviar los datos
+      sendFormData();
+      setFormNo(formNo + 1);
+      
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Por favor completa todos los campos',
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+    }
+  };
+
+
+
+
+
+
+// Función para enviar los datos del formulario a la API
+const sendFormData = async () => {
+    try {
+        const patient= JSON.parse(await SecureStore.getItemAsync("patient"));
+        const response = patient ? await axios.post('https://apifullheath.onrender.com/patients/update/'+patient['_id'],state):await  axios.post('https://apifullheath.onrender.com/patients/new',state)
+        
+        if(response.data.id){
+           setPatientId(response.data.id)
+        }
+
+        console.log(response.data)
+        Toast.show({
+          type:"success",
+          text1:"operacion  exitosa",
+          autoHide:true
+        })
+    } catch (error) {
+        console.log(error.message)
+        Toast.show({
+          type:"error",
+          text1:"Hubo un error al enviar el formulario",
+          autoHide:true
+        })
+    }
+};
+
+
+
+// Función para manejar los cambios en los campos del formulario
+const inputHandle = (name, value) => {
+  
+  setState((prevState) => ({
+    ...prevState,
+    [name]: value,
+  }));
+
+  setFormData((prevFormData) => ({
+    ...prevFormData,
+    [name]: value,
+  }));
+  
+};
+
+
+  ///////////////////////////////////// Esto es para dar delante y pa atras al formulario /////////////////////////////////////
   const next = () => {
-    if (formNo === 1 && state.name && state.lastname && state.age && state.phone && state.emergencyPhone && state.DoB ) {
+    if (formNo === 1 && state.name && state.lastname && state.age && state.phone && state.emergencyPhone && state.DoB) {
       if (state.phone.length === 10) {
         setFormNo(formNo + 1);
       } else {
-        toast.error('Please enter a valid phone number');
+        Toast.show({
+          type: 'error',
+          text1: 'Por favor ingresa un número de teléfono válido',
+          visibilityTime: 2000,
+          autoHide: true,
+        });
       }
     } else if (formNo === 2 && state.weight && state.height && state.typeBlood) {
       setFormNo(formNo + 1);
     } else {
-      toast.error('Please fill up all input fields');
+      Toast.show({
+        type: 'error',
+        text1: 'Por favor completa todos los campos ',
+        visibilityTime: 2000,
+        autoHide: true,
+      });
     }
   };
-
+  
   const pre = () => {
-    setFormNo(formNo - 1);
-  };
-
-  const finalSubmit = () => {
-    if (state.name && state.lastname && state.age && state.phone && state.emergencyPhone && state.DoB && state.weight && state.height && state.typeBlood) {
-      console.log(formData); // Mostrar datos del formulario en la consola
-      toast.success('Form submitted successfully');
+    if (formNo > 1) {
+      setFormNo(formNo - 1);
     } else {
-      toast.error('Please fill up all input fields');
+      Toast.show({
+        type: 'error',
+        text1: 'No hay formularios anteriores',
+        visibilityTime: 2000,
+        autoHide: true,
+      });
     }
   };
+///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
 
-  const validateNumberInput = (value) => {
-    const regex = /^\d+(\.\d{1,2})?$/; // Accepts numbers with up to 2 decimal places
-    return regex.test(value);
-  };
+const finalSubmit = () => {
+    console.log(selectedDeviceId)
+    console.log(patient)
+    console.log(selectedDoctorId)
 
-  const validateEmailInput = (value) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Validates email format
-    return regex.test(value);
-  };
+  // if (
+  //   patient && selectedDeviceId && selectedDoctorId
+  // ) {
+  //   // Llamar a la función para enviar los datos
+  //   sendFormData1();
+  //   console.log(formData1);
+  // } 
+};
 
+
+////esteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
+const sendFormData1 = async () => {
+   console.log(state.hospital)
+   console.log(patientId)
+  try {
+     console.log(formData1)
+
+    const response = await axios.post('https://apifullheath.onrender.com/files/assign', {hospital:state.hospital,patient:patientId,device:selectedDeviceId,doctor:selectedDoctorId});
+      console.log(response.data)
+    if (response.data) {
+      console.log(formData1)
+      Toast.show({
+        type: 'success',
+        text1: 'Formulario enviado exitosamente',
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+
+      navigation.navigate('Home')
+    } else {
+      console.log(response.json())
+      console.log('Error al enviar el formulario');
+      Toast.show({
+        type: 'error',
+        text1: 'Hubo un error al enviar el formulario',
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+    }
+  } catch (error) {
+    console.error('Error en la solicitud POST:', error);
+    Toast.show({
+      type: 'error',
+      text1: 'Hubo un error al enviar el formulario',
+      visibilityTime: 2000,
+      autoHide: true,
+    });
+  }
+};
+
+////////////////obtener los datos del paciente si hay para mostrar en el formulario picker
+useEffect(()=>{
+      async function getPatientHospital(){
+         let patient= await SecureStore.getItemAsync('patient');
+         if(patient){
+            let obj=JSON.parse(patient)
+             setPatientId(obj['_id'])
+             setState({
+               ...state,
+               name:obj.name,
+               lastname:obj.lastname,
+               age:obj.age,
+               phone:obj.phone,
+               emergencyPhone:obj.emergencyPhone,
+               weight:obj.weight,
+               height:obj.height,
+               DoB:obj.DoB,
+               typeBlood:obj.typeBlood,
+               hospital:obj.hospital,
+             })
+         }else{
+            let hospital=Number(await SecureStore.getItemAsync('hospital'));
+            setState({
+              ...state,
+              hospital
+            })
+         }
+      }
+
+      getPatientHospital()
+},[])
+
+//////////////////////////////////////////////  Formulario de picker para agregar a los doctores  /////////////////////////////////////
+  const [doctors, setDoctors] = useState(['valuee']); // Estado para almacenar la lista de doctores
+  const [selectedDoctorId, setSelectedDoctorId] = useState("valor no cambiado"); // Estado para almacenar el ID del doctor seleccionado
+
+  useEffect(() => {
+    // Función para obtener la lista de doctores desde la API
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get('https://apifullheath.onrender.com/medicalUsrs/byHospital/0/typeUser/Doctor'); // Reemplaza 'URL_DE_TU_API_DOCTORES' con la URL correcta de tu API
+        setDoctors(response.data); // Almacenar la lista de doctores en el estado
+      } catch (error) {
+        console.error('Error al obtener la lista de doctores:', error);
+      }
+    };
+
+    fetchDoctors(); // Llamar a la función para obtener la lista de doctores al cargar el componente
+  }, []);
+  ///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
+
+//////////////////////////////////////////////  Formulario de picker para agregar a los dispositivos  /////////////////////////////////////
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        // Reemplaza 'URL_DE_TU_API_DISPOSITIVOS' con la URL correcta de tu API que devuelve la lista de dispositivos
+        const response = await axios.get('https://apifullheath.onrender.com/devices/byHospital/0/active');
+        const filteredDevices = response.data.filter((device) => device.status === true);
+        setDevices(filteredDevices);
+      } catch (error) {
+        console.error('Error al obtener la lista de dispositivos:', error);
+      }
+    };
+
+    fetchDevices();
+  }, []);
+  ////////////////////////////////////////////////////////////////////////////////////
+  
+///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
   return (
+    <ScrollView contentContainerStyle={styles.container}>
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Image 
+      <Image
         style={{ width: 250, height: 52, alignSelf: 'center', marginBottom: 40 }}
-        source={require('../img/logonav.png')} 
+        source={require('../img/logonav.png')}
       />
-      <ToastContainer />
+
       <View
         style={{
           width: 370,
@@ -84,13 +322,13 @@ const formpaciente = () => {
           shadowColor: '#000',
           shadowOffset: {
             width: 0,
-            height: 2
+            height: 2,
           },
           shadowOpacity: 0.25,
           shadowRadius: 3.84,
           elevation: 5,
           backgroundColor: '#FFF',
-          padding: 16
+          padding: 16,
         }}
       >
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -102,10 +340,10 @@ const formpaciente = () => {
                   height: 35,
                   borderRadius: 35 / 2,
                   backgroundColor:
-                    formNo - 1 === i || formNo - 1 === i + 1 || formNo === formArray.length ? '#39A969' : '#CBD5E0',
+                    formNo - 1 === i || formNo === i + 1 || formNo === formArray.length ? '#39A969' : '#CBD5E0',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginVertical: 3
+                  marginVertical: 3,
                 }}
               >
                 <Text style={{ color: '#FFF' }}>{v}</Text>
@@ -115,7 +353,7 @@ const formpaciente = () => {
                   style={{
                     width: 85,
                     height: 2,
-                    backgroundColor: formNo === i + 2 || formNo === formArray.length ? '#39A969' : '#CBD5E0'
+                    backgroundColor: formNo === i + 2 || formNo === formArray.length ? '#39A969' : '#CBD5E0',
                   }}
                 />
               )}
@@ -137,9 +375,9 @@ const formpaciente = () => {
                   paddingVertical: 8,
                   borderRadius: 4,
                   marginBottom: 4,
-                  marginTop: 0
+                  marginTop: 0,
                 }}
-                placeholder="Name"
+                placeholder="Nombre"
               />
             </View>
             <View style={{ marginBottom: 8 }}>
@@ -148,16 +386,17 @@ const formpaciente = () => {
                 value={state.lastname}
                 onChangeText={(value) => inputHandle('lastname', value)}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
-                placeholder="Lastname"
+                placeholder="Apellidos"
               />
             </View>
             <View style={{ marginBottom: 8 }}>
               <Text style={{ marginTop: 5, fontSize: 16 }}>Edad del paciente</Text>
               <TextInput
-                value={state.age}
-                onChangeText={(value) => inputHandle('age', value)}
+                value={String(state.age)}
+                onChangeText={(value) => inputHandle('age',Number(value))}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
                 placeholder="age"
+                keyboardType="numeric"
               />
             </View>
             <View style={{ marginBottom: 8 }}>
@@ -167,41 +406,60 @@ const formpaciente = () => {
                 onChangeText={(value) => inputHandle('phone', value)}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
                 placeholder="Cellphone Number"
+                keyboardType="numeric"
               />
             </View>
             <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 5, fontSize: 16 }}>Feha de ingreso</Text>
+              <Text style={{ marginTop: 5, fontSize: 16 }}>Numero de celular de emergencia</Text>
               <TextInput
-                value={state.DoB}
-                onChangeText={(value) => inputHandle('DoB', value)}
-                style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4, marginBottom:10 }}
-                placeholder="DoB"
+                value={state.emergencyPhone}
+                onChangeText={(value) => inputHandle('emergencyPhone', value)}
+                style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
+                placeholder="EmergencyPhone"
+                keyboardType="numeric"
               />
             </View>
-            <TouchableOpacity onPress={next} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 70, alignSelf:'center' }}>
-              <Text style={{ color: '#FFF', padding: 8, textAlign:'center', fontSize:16 }}>Next</Text>
+            <View style={{ marginBottom: 8 }}>
+  
+            <View style={{ marginBottom: 8 }}>
+                <Text style={{ marginTop: 5, fontSize: 16 }}>Fecha de nacimiento</Text>
+                <TouchableOpacity onPress={showDatePicker} style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4, marginBottom: 10 }}>
+                    <Text>{state.DoB || 'Seleccionar fecha'}</Text>
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="date"
+                  onConfirm={handleDateConfirm}
+                  onCancel={hideDatePicker}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity onPress={next} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 70, alignSelf: 'center' }}>
+              <Text style={{ color: '#FFF', padding: 8, textAlign: 'center', fontSize: 16 }}>Siguiente</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {formNo === 2 && (
           <View>
-            <Text style={{ marginTop: 12, marginBottom: 10, fontSize: 22 }}>Patient's record</Text>
+            <Text style={{ marginTop: 12, marginBottom: 10, fontSize: 22 }}>Registro del paciente</Text>
             <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 12, fontSize: 16 }}>Patient's weight</Text>
+              <Text style={{ marginTop: 12, fontSize: 16 }}>Peso del paciente</Text>
               <TextInput
-                value={state.weight}
-                onChangeText={(value) => inputHandle('weight', value)}
+                value={String(state.weight)}
+                onChangeText={(value) => inputHandle('weight',Number(value))}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
-                placeholder="Weight(kg)"
+                placeholder="Peso (kg)"
                 keyboardType="numeric"
               />
             </View>
+            
             <View style={{ marginBottom: 8 }}>
-              <Text style={{ marginTop: 5, fontSize: 16 }}>height</Text>
-              <TextInput
-                value={state.height}
-                onChangeText={(value) => inputHandle('height', value)}
+              <Text style={{ marginTop: 5, fontSize: 16 }}>Altura del paciente </Text>
+               <TextInput
+                value={String(state.height)}
+                onChangeText={(value) => inputHandle('height',Number(value))}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
                 placeholder="Height(foot)"
                 keyboardType="numeric"
@@ -214,29 +472,63 @@ const formpaciente = () => {
                 onChangeText={(value) => inputHandle('typeBlood', value)}
                 style={{ borderWidth: 1, borderColor: '#CBD5E0', paddingVertical: 8, borderRadius: 4 }}
                 placeholder="typeBlood"
-                multiline
               />
             </View>
-            <View
-              style={{
-                marginTop: 16,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-            >
-              <TouchableOpacity onPress={pre} style={{ backgroundColor: '#39A969', borderRadius: 4 ,textAlign:'center', fontSize:16}}>
-                <Text style={{ color: '#FFF', padding: 8 }}>Previous</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={finalSubmit} style={{ backgroundColor: '#39A969', borderRadius: 4,width: 80, alignSelf:'center' }}>
-              <Text style={{ color: '#FFF', padding: 8,textAlign:'center' }}>Submit</Text>
+
+            <TouchableOpacity onPress={pre} style={{ backgroundColor: '#39A969', borderRadius: 4, textAlign: 'center', fontSize: 16 }}>
+              <Text style={{ color: '#FFF', padding: 8 }}>Anterior</Text>
             </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={handleNextAndSubmit} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 80, alignSelf: 'center' }}>
+              <Text style={{ color: '#FFF', padding: 8, textAlign: 'center' }}>Siguiente</Text>
+            </TouchableOpacity>
           </View>
         )}
+        {formNo === 3 && (
+        <View>
+            <Text style={{ marginTop: 12, marginBottom: 10, fontSize: 22 }}>Asignar medico y dipositivo</Text>
+            <View style={{ marginBottom: 8 }}>
+              <Text style={{ marginTop: 5, fontSize: 16 }}>Doctor</Text>
+              <Picker selectedValue={selectedDoctorId} onValueChange={(itemValue) => setSelectedDoctorId(itemValue)}>
+              <Picker.Item label="Seleccionar Doctor" value={null} />
+        {doctors.map((doctor) => (
+          <Picker.Item key={doctor._id} label={doctor.Medical_info.name} value={doctor._id} />
+        ))}
+      </Picker>
+
+      {/* Mostrar el ID del doctor seleccionado (esto es solo para verificar durante el desarrollo) */}
+      <Text>ID del doctor seleccionado: {selectedDoctorId}</Text>
+            </View>
+            <View style={{ marginBottom: 8 }}>
+              <Text style={{ marginTop: 5, fontSize: 16 }}>Device</Text>
+              <Picker selectedValue={selectedDeviceId} onValueChange={(itemValue) => setSelectedDeviceId(itemValue)}>
+        <Picker.Item label="Seleccionar Dispositivo" value={null} />
+        {devices.map((device) => (
+          <Picker.Item key={device._id} label={device.name} value={device._id} />))}
+      </Picker>
+
+      <Text>ID del dispositivo seleccionado: {selectedDeviceId}</Text>
+
+            </View>
+            <TouchableOpacity onPress={sendFormData1} style={{ backgroundColor: '#39A969', borderRadius: 4, width: 80, alignSelf: 'center' }}>
+              <Text style={{ color: '#FFF', padding: 8, textAlign: 'center' }}>Asignar Doctor</Text>
+            </TouchableOpacity>
+  </View>
+)}
       </View>
+      <Toast/>
     </View>
+    </ScrollView>
   );
 };
 
-export default formpaciente;
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 50,
+    backgroundColor: '#fff'
+  },
+})
+
+export default FormPaciente;
