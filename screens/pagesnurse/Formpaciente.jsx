@@ -7,6 +7,7 @@ import {Picker} from '@react-native-picker/picker';
 import { ScrollView } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 //get info file
+
 import * as SecureStore from 'expo-secure-store';
 
 const FormPaciente = ({navigation}) => {
@@ -29,10 +30,12 @@ const FormPaciente = ({navigation}) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [patientId, setPatientId] = useState(null);
   const [formData, setFormData] = useState({});
-  ////esto puede que se elimine xd es de pruebaf
-  const [formData1, setFormData1] = useState({});
 
-
+  const [doctors, setDoctors] = useState([]); // Estado para almacenar la lista de doctores
+  const [selectedDoctorId, setSelectedDoctorId] = useState(null);
+  
+  const [devices, setDevices] = useState([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
 
   //limpiar el formulario
   useFocusEffect(
@@ -179,19 +182,6 @@ const inputHandle = (name, value) => {
   };
 ///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
 
-const finalSubmit = () => {
-    console.log(selectedDeviceId)
-    console.log(patient)
-    console.log(selectedDoctorId)
-
-  // if (
-  //   patient && selectedDeviceId && selectedDoctorId
-  // ) {
-  //   // Llamar a la función para enviar los datos
-  //   sendFormData1();
-  //   console.log(formData1);
-  // } 
-};
 
 
 ////esteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
@@ -200,12 +190,10 @@ const sendFormData1 = async () => {
    console.log(state.hospital)
    console.log(patientId)
   try {
-     console.log(formData1)
-
     const response = await axios.post('https://apifullheath.onrender.com/files/assign', {hospital:state.hospital,patient:patientId,device:selectedDeviceId,doctor:selectedDoctorId});
       console.log(response.data)
     if (response.data) {
-      console.log(formData1)
+      
       Toast.show({
         type: 'success',
         text1: 'Formulario enviado exitosamente',
@@ -268,8 +256,7 @@ useEffect(()=>{
 },[])
 
 //////////////////////////////////////////////  Formulario de picker para agregar a los doctores  /////////////////////////////////////
-  const [doctors, setDoctors] = useState(['valuee']); // Estado para almacenar la lista de doctores
-  const [selectedDoctorId, setSelectedDoctorId] = useState("valor no cambiado"); // Estado para almacenar el ID del doctor seleccionado
+ // Estado para almacenar el ID del doctor seleccionado
 
   useEffect(() => {
     // Función para obtener la lista de doctores desde la API
@@ -287,8 +274,7 @@ useEffect(()=>{
   ///////////////////////////////////////////////////////////////////////////////////////////// /////////////////////////////////////
 
 //////////////////////////////////////////////  Formulario de picker para agregar a los dispositivos  /////////////////////////////////////
-  const [devices, setDevices] = useState([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
+
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -312,7 +298,7 @@ useEffect(()=>{
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Image
         style={{ width: 250, height: 52, alignSelf: 'center', marginBottom: 40 }}
-        source={require('../img/logonav.png')}
+        source={require('../../img/logonav.png')}
       />
 
       <View

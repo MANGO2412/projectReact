@@ -9,33 +9,40 @@ import * as SecureStore from 'expo-secure-store';
 
 function HomeScreen({navigation}) {
   const [patients, setPatients] = useState([]);
-
+  const [loading, setLoading] = useState(true); 
 
   // Función para obtener los datos de los pacientes desde la API utilizando Axios
   const fetchPatients = async () => {
     try {
+
+      setLoading(true)
       const response = await axios.get('https://apifullheath.onrender.com/files/byHospital/0/active'); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
-      setPatients(response.data);
-      await SecureStore.setItemAsync('files',JSON.stringify(response.data))
+      let files = response.data.map((element)=>element.patient)
+      await SecureStore.setItemAsync('files',JSON.stringify(files))
+      setPatients(response.data)
+
     } catch (error) {
       console.error('Error al obtener los pacientes:', error);
+      await SecureStore.setItemAsync('files',JSON.stringify([]))
       setPatients([])
     }
+    setLoading(false)
   };
 
   //dar de alta los expedientes
   const lossFile=async (id)=>{
     try{
       let resp = await axios.post('https://apifullheath.onrender.com/files/disable/'+id);
-      console.log(resp.data) 
+      console.log(resp.data)
       Toast.show({
         type:'success',
         text1:'expediente dado de  alta',
         autoHide:true
       })
-    }catch(error){console.log()}
+    }catch(error){console.log(error)}
 
     await fetchPatients();
+  
 
   }
 
@@ -46,76 +53,68 @@ function HomeScreen({navigation}) {
   useFocusEffect(
     useCallback(() => {
        fetchPatients()
+      
       // Do something when the screen is focused
       return () => {};
     }, [])
   );
 
-  
+ 
 
   return (
-    <View>
-       <View style={styles.titContainer}>
-         <Toast/>
-      </View>
     
-    <ScrollView contentContainerStyle={styles.container}>
+    
+    <ScrollView >
    
      <View style={styles.titContainer}>
          <Text style={styles.tit}>Lista de pacientes</Text>
-      </View>
-    {patients.map((patient) => (
-      <View key={patient._id} style={styles.tarjeta}>
-        <View style={styles.nombre}>
-          <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Patient's name: </Text>
-          <Text style={{ fontSize: 15 }}>{patient.patient_details.name} {patient.patient_details.lastname}</Text>
-        </View>
-        <View style={styles.descrip}>
-          <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Doctor's assigned: </Text>
-          {patient.doctor_details ? (
-            <Text style={{ fontSize: 15 }}>{patient.doctor_details.Medical_info.name} {patient.doctor_details.Medical_info.lastname}</Text>
-          ) : (
-            <Text style={{ fontSize: 15 }}>No asignado</Text>
-          )}
-        </View>
-        <View style={{alignItems:'center'}}>
-        <TouchableOpacity
-        style={{
-          backgroundColor: '#39a969',
-          padding: 10,
-          borderRadius: 8,
-          marginTop: 20,
-        }}
-        onPress={() => {
-          navigation.navigate('Receta');
-        }}
-      >
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
-          Ir a Receta
-        </Text>
-      </TouchableOpacity>
+     </View>
+     {
+      loading?(
+       <View>
+           {/* loader icon */}
+       </View>
+      ):(
+         <>
+             {
+          patients.map((patient)=>(
+            <View key={patient['_id']}  style={styles.tarjeta}>
+               <View style={styles.nombre}>
+                 <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Patient's name: </Text>
+                 <Text style={{ fontSize: 15 }}>{patient.patient_details.name} {patient.patient_details.lastname}</Text>
+               </View>
+                <View style={styles.descrip}>
+                   <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Doctor's assigned: </Text>
+                   {patient.doctor_details ? (
+                     <Text style={{ fontSize: 15 }}>{patient.doctor_details.Medical_info.name} {patient.doctor_details.Medical_info.lastname}</Text>
+                   ) : (
+                     <Text style={{ fontSize: 15 }}>No asignado</Text>
+                   )}
+               </View>
+                <View style={{alignItems:'center'}}>
+                       <TouchableOpacity style={{backgroundColor: '#39a969',padding: 10,borderRadius: 8,marginTop: 20,}}
+                         onPress={() => {navigation.navigate('Receta');}}>
+                               <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+                                 Ir a Receta
+                               </Text>
+                       </TouchableOpacity>
+                       <TouchableOpacity
+                         style={{backgroundColor: '#39a969',padding: 10,borderRadius: 8,marginTop: 20}} onPress={()=>{lossFile(patient['_id'])}}
+                       >
+                         <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+                           Dar de Alta
+                         </Text>
+                       </TouchableOpacity>
+                </View>
+            </View>
+          ))
+          }
+        </>
+      )
+     }
 
-
-      <TouchableOpacity
-        style={{
-          backgroundColor: '#39a969',
-          padding: 10,
-          borderRadius: 8,
-          marginTop: 20,
-        }}
-        onPress={()=>{lossFile(patient['_id'])}}
-      >
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
-          Dar de Alta
-        </Text>
-      </TouchableOpacity>
-      
-        </View>
-      </View>
-    ))}
-     
+    
   </ScrollView>
-    </View>
    
   );
 }
@@ -133,7 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tarjeta: {
-    width: '100',
+    width: 500,
     borderRadius: 5,
     backgroundColor: '#fff',
     padding: 10,

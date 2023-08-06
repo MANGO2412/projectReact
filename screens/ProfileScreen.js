@@ -11,9 +11,7 @@ function ProfileScreen() {
   const fetch = async () => {
     try {
       let id = await SecureStore.getItemAsync('user');
-      console.log(id)
       const response = await axios.get('https://apifullheath.onrender.com/medicalUsrs/' +id ); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
-     
       setData(response.data);
         } catch (error) {
       console.error('Error al cargar perfil:', error);

@@ -1,12 +1,12 @@
 // este es el real 
 import * as React from 'react';
-
+import {View,Text} from 'react-native'
 import NavContener from './components/navigation';
 
 
 export default function App(){
    return (
-      <NavContener/>
+     <NavContener/>
    )
 }
 

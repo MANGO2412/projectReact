@@ -66,7 +66,7 @@ const Receta = () => {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Image
           style={{ width: 250, height: 52, alignSelf: 'center', marginTop: 15, marginBottom: 10 }}
-          source={require('../img/logonav.png')}
+          source={require('../../img/logonav.png')}
         />
         <View
           style={{

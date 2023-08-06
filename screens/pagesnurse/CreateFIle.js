@@ -1,7 +1,7 @@
-import { useState,useEffect } from 'react'
+import { useState,useEffect,useCallback} from 'react'
 import {Text,View,TouchableOpacity,StyleSheet,SafeAreaView,FlatList,TextInput} from 'react-native'
 import {AntDesign,FontAwesome5} from '@expo/vector-icons'
- 
+import { useFocusEffect } from '@react-navigation/native';
 
 import * as SecureStore from 'expo-secure-store';
 
@@ -10,32 +10,41 @@ export default function CreateFile({navigation}){
     const [search,setSearch]=useState('');
     const [filteredDataSource,SetFilteredDataSource]=useState([]);
     const [masterDataSource,setMasterDataSource]=useState([])
-     
+    const [loading, setLoading] = useState(true); 
     
-    useEffect(()=>{
-      async function getID(){
-         let id=await SecureStore.getItemAsync('hospital')
-    
-         fetch('https://apifullheath.onrender.com/patients/byHospital/'+id)
-         .then((resp)=> resp.json())
-         .then(async (resp)=>{
-             let files=JSON.parse(await SecureStore.getItemAsync('files'));
-             let obj=[]
 
-             
-
-
-
-           
+     //codigo para que habilite la actualizacion del los datos de forma automatica
+     useFocusEffect(
+       useCallback(() => {
+        async function getID(){
+          setLoading(true)
+          let id=await SecureStore.getItemAsync('hospital')
+          fetch('https://apifullheath.onrender.com/patients/byHospital/'+id)
+          .then((resp)=> resp.json())
+          .then(async (resp)=>{
+            let files=JSON.parse(await SecureStore.getItemAsync('files'));
+            console.log(files)
+            for (const iterator in resp) {
+                   for(const iterator2 of files){
+                        if(resp[iterator]['_id']==iterator2){
+                          resp.splice(iterator,1);
+                        }
+                   }
+            }
+            
            SetFilteredDataSource(resp);
-           setMasterDataSource();
-         })
-      }
-     
-      getID()
+           setMasterDataSource(resp);
+           
+          }).finally(() => setLoading(false)); 
+       }
       
-    },[])
-    
+       getID()
+         // Do something when the screen is focused
+         return () => {};
+       }, [])
+     );
+
+  
 
     const searchFilterrFunction=(text)=>{
        if(text){
@@ -109,26 +118,35 @@ export default function CreateFile({navigation}){
 
     return(
       <SafeAreaView style={{ flex: 1}}>
-      <View style={styles.container}>
-        <TextInput
-          style={styles.textInputStyle}
-          value={search}
-          onChangeText={(text)=>{
-            searchFilterrFunction(text)
-          }}
-          underlineColorAndroid="transparent"
-          placeholder="Search Here"
-        />
-        <TouchableOpacity style={{ backgroundColor: '#39a969', padding: 10,borderRadius: 8}} onPress={()=>{navigation.navigate('CreateAddFile')}}>
-        <AntDesign name="adduser" size={30}  color="white" />
-      </TouchableOpacity>
-      </View>
-      <View style={styles.container2}>
-         <Text style={styles.textTit}>lista de pacientes</Text>
-         <FlatList data={filteredDataSource} keyExtractor={(item,index)=>index.toString()}
-               renderItem={ItemView}
+           <View style={styles.container}>
+         
+         <TextInput
+           style={styles.textInputStyle}
+           value={search}
+           onChangeText={(text)=>{
+             searchFilterrFunction(text)
+           }}
+           underlineColorAndroid="transparent"
+           placeholder="Search Here"
          />
-      </View>
+         <TouchableOpacity style={{ backgroundColor: '#39a969', padding: 10,borderRadius: 8}} onPress={()=>{navigation.navigate('CreateAddFile')}}>
+         <AntDesign name="adduser" size={30}  color="white" />
+       </TouchableOpacity>
+       </View>
+        {
+          loading?(
+          <View style={styles.container2}>
+              {/*loader icon  */}
+         </View> 
+          ):(
+            <View style={styles.container2}>
+            <Text style={styles.textTit}>lista de pacientes</Text>
+            <FlatList data={filteredDataSource} keyExtractor={(item,index)=>index.toString()}
+                  renderItem={ItemView}
+            />
+         </View>
+          )
+        } 
     </SafeAreaView>
     )   
 }

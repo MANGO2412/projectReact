@@ -8,15 +8,17 @@ import AuthContext from '../store/AuthContext';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// Import  the screens here
-import HomeScreen from '../Nav/HomeScreen';
-import ProfileScreen from '../Nav/ProfileScreen';
+// main screee
+import HomeScreen from '../screens/HomeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import SplashScreen  from '../screens/SplashScreen'
 import Login from '../screens/Login';
-import Formpaciente from '../pagesnurse/Formpaciente';
-import CreateFile from '../pagesnurse/CreateFIle';
-import Receta from '../pagesdoctor/Receta'
-import Infopac from '../pagesdoctor/Infopac'
+
+//screen nurse
+import Formpaciente from '../screens/pagesnurse/Formpaciente';
+import CreateFile from '../screens/pagesnurse/CreateFIle';
+import Receta from '../screens/pagesdoctor/Receta'
+
 
 //initialize the variables
 const Stack = createNativeStackNavigator();
@@ -46,7 +48,7 @@ const NurseTabsNavgator=()=>(
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'see files',
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="home" color={color} size={26} />
           ),
@@ -81,15 +83,15 @@ const NurseTabsNavgator=()=>(
 const DocTabsNavigator=()=>(
   <>
   <Tab.Navigator
-    initialRouteName="HomeDoctor"
+    initialRouteName="HomeSreen"
     activeColor="#39a969"
     barStyle={{ backgroundColor: 'white' }}
   >
     <Tab.Screen
-      name="HomeDoctor"
+      name="HomeScreen"
       component={HomeScreen}
       options={{
-        tabBarLabel: 'see patients',
+        tabBarLabel: 'see files',
         tabBarIcon: ({ color }) => (
           <MaterialCommunityIcons name="home" color={color} size={26} />
         ),
@@ -106,16 +108,7 @@ const DocTabsNavigator=()=>(
         ),
       }}
     />
-    <Tab.Screen
-      name="Profile"
-      component={Infopac}
-      options={{
-        tabBarLabel: 'info',
-        tabBarIcon: ({ color }) => (
-          <MaterialCommunityIcons name="account" color={color} size={26} />
-        ),
-      }}
-    />
+   
   </Tab.Navigator>
  </>
 )
@@ -193,6 +186,7 @@ const NavContener = () => {
         let mess = await resp.json();
         let res=mess[0];
         if (res != null) {
+          console.log(res)
           await SecureStore.setItemAsync('user',String(res["_id"]));
           await SecureStore.setItemAsync('hospital',String(res["Medical_info"].hospital));
           await SecureStore.setItemAsync('typeUser',res.typeUser);
@@ -236,7 +230,7 @@ const NavContener = () => {
             </Stack.Navigator>
             ) :(
             <Stack.Navigator>
-                <Stack.Screen name=" " component={state.TypeUser=="Doctor"?(DocTabsNavigator):(NurseTabsNavgator)}/>
+                <Stack.Screen name=" " component={state.TypeUser==="Doctor" ? (DocTabsNavigator):(NurseTabsNavgator) }/>
                  <Stack.Screen name="Receta" component={Receta}/>
                  <Stack.Screen name="CreateAddFile" component={Formpaciente}/>
              </Stack.Navigator>
