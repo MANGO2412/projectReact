@@ -2,7 +2,6 @@ import React, { useEffect, useState,useCallback} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
-
 import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 
@@ -24,6 +23,7 @@ function HomeScreen({navigation}) {
     } catch (error) {
       console.error('Error al obtener los pacientes:', error);
       await SecureStore.setItemAsync('files',JSON.stringify([]))
+      
       setPatients([])
     }
     setLoading(false)

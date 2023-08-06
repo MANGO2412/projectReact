@@ -18,6 +18,8 @@ import Login from '../screens/Login';
 import Formpaciente from '../screens/pagesnurse/Formpaciente';
 import CreateFile from '../screens/pagesnurse/CreateFIle';
 import Receta from '../screens/pagesdoctor/Receta'
+import HomeScreendoc from '../screens/pagesdoctor/Homescreendoc';
+import Vistapac from '../screens/pagesdoctor/Vistapac';
 
 
 //initialize the variables
@@ -89,7 +91,7 @@ const DocTabsNavigator=()=>(
   >
     <Tab.Screen
       name="HomeScreen"
-      component={HomeScreen}
+      component={HomeScreendoc}
       options={{
         tabBarLabel: 'see files',
         tabBarIcon: ({ color }) => (
@@ -231,8 +233,11 @@ const NavContener = () => {
             ) :(
             <Stack.Navigator>
                 <Stack.Screen name=" " component={state.TypeUser==="Doctor" ? (DocTabsNavigator):(NurseTabsNavgator) }/>
+                {/* agregar receta */}
                  <Stack.Screen name="Receta" component={Receta}/>
                  <Stack.Screen name="CreateAddFile" component={Formpaciente}/>
+                 <Stack.Screen name="Vistapac" component={Vistapac}/>
+             
              </Stack.Navigator>
             )
             }
