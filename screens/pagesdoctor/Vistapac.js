@@ -1,10 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions } from 'react-native'; // Import Dimensions
+import { View, Text, Image, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import LiveChart from '../../components/livechart';
 import axios from 'axios';
-
-
 import * as SecureStore from 'expo-secure-store';
 
 const Vistapac = () => {
@@ -35,163 +33,116 @@ const Vistapac = () => {
       {file[0] && (
         <View
           key={file.id}
-          style={{
-            flex: 1,
-            justifyContent: 'flex-start', // Align content at the top
-            alignItems: 'center', // Center horizontally
-            width: Dimensions.get('window').width * 0.9, // Set width to 90% of the screen width
-            alignSelf: 'center', // Center the container horizontally
-          }}
+          style={styles.cardContainer}
         >
           <Image
-            style={{ width: 250, height: 52, alignSelf: 'center', marginTop: 15, marginBottom: 10 }}
+            style={styles.logo}
             source={require('../../img/logonav.png')}
           />
+    
           {isLog ? (
-            <View>
+            <View style={styles.loadingContainer}>
               <Text>Loading...</Text>
             </View>
           ) : (
-            <View>
+            <View style={styles.contentContainer}>
+            <Text style={styles.sectionTitle}>
+                    Estado del paciente
+                  </Text>
+            <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionHeaderText}>Graficas de temperatura</Text>
+                  </View>
+               
                  
               {file[0] ? (
                 <View>
-                  <Text style={{ marginTop: 12, marginBottom: 20, fontSize: 22, alignSelf: 'center', marginLeft:-10 }}>
-                    Estado del paciente
-                  </Text>
-                  <View
-                    style={{
-                      marginBottom: 14,
-                      display: 'flex',
-                      flexDirection: 'row',
-                      backgroundColor: '#39a969',
-                      width: '160%',
-                      marginLeft: -65,
-                      height: 32,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        marginTop: 7,
-                        marginLeft: 110,
-                        fontSize: 16,
-                        fontWeight: 'bold',
-                        marginBottom: 5,
-                        color: '#fff',
+                   <View>
+                    <LiveChart
+                      params={{
+                        device: file[0].device,
+                        file: file[0].file,
+                        kd: 'Toc'
                       }}
-                    >
-                      Datos del paciente
-                    </Text>
+                      info={{
+                        name: "temperatura",
+                        max: 40,
+                        min: 34
+                      }}
+                    />
                   </View>
+                  
+
                   <View>
-                    <View style={{ marginBottom: 8, display: 'flex', flexDirection: 'row', marginLeft: -55  }}>
-                      <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold', marginBottom: 5}}>
-                        Nombre del paciente:
-                      </Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}>
-                        {' ' + file[0]['patient_details'].name + ' ' + file[0]['patient_details'].lastname}
-                      </Text>
-                    </View>
-                    <View style={{ marginBottom: 14, display: 'flex', flexDirection: 'row' }}>
-                      <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold', marginLeft: -55 }}>Edad:</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}> {file[0]['patient_details'].age} </Text>
-                      <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold' }}> Peso:</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}> {file[0]['patient_details'].weight} KG </Text>
-                    </View>
-                    <View
-                      style={{
-                        marginBottom: 8,
-                        display: 'flex',
-                        flexDirection: 'row',
-                        backgroundColor: '#39a969',
-                        height: 33,
-                        width: '160%',
-                      marginLeft: -65,
+                    <LiveChart
+                      params={{
+                        device:  file[0].device,
+                        file: file[0].file,
+                        kd: 'FC'
                       }}
-                    >
-                      <Text
-                        style={{
-                          marginTop: 7,
-                          marginLeft: 100,
-                          fontSize: 16,
-                          fontWeight: 'bold',
-                          marginBottom: 5,
-                          color: '#fff',
-
-                        }}
-                      >
-                        Diagnostico y tratamiento
-                      </Text>
-                    </View>
-                    <View>
-                    <View style={{ marginBottom: 8, display: 'flex', marginLeft: -55  }}>
-                      <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold', marginBottom: 5}}>
-                        Diagnostico:
-                      </Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}>
-                        {file[0].diagnostic}
-                      </Text>
-                    </View>
-                    <View style={{ marginBottom: 14, flexDirection: 'row' }}>
-                         <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold' }}> Sintomas:</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}> {file[0]['treatment'].symptoms}</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold', marginLeft: -55 }}>Medicamentos a dar:</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}> {file[0]['treatment'].dosis} </Text>
-                      <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold' }}> Administracion del medicamento:</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}> {file[0]['treatment'].Administration}</Text>
-                         <Text style={{ marginTop: 0, fontSize: 16, fontWeight: 'bold' }}> Descripcion del paciente:</Text>
-                      <Text style={{ marginTop: 0, fontSize: 16 }}> {file[0]['treatment'].Description}</Text>
-                    </View>
-                    </View>
-                    <View
-                      style={{
-                        marginBottom: 8,
-                        display: 'flex',
-                        flexDirection: 'row',
-                        backgroundColor: '#39a969',
-                        height: 33,
-                        width: '160%',
-                      marginLeft: -65,
+                      info={{
+                        name: "Frecuencia cardiaca",
+                        max: 100,
+                        min: 40
                       }}
-                    >
-                      <Text
-                        style={{
-                          marginTop: 7,
-                          marginLeft: 150,
-                          fontSize: 16,
-                          fontWeight: 'bold',
-                          marginBottom: 5,
-                          color: '#fff',
+                    />
+                </View>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionHeaderText2}>Datos personales</Text>
+                  </View>
+                  <View style={styles.infoSection}>
+                    <Text style={styles.infoLabel}>Nombre del paciente:</Text>
+                    <Text style={styles.infoValue}>
+                    {file[0]['patient_details'].name + ' ' + file[0]['patient_details'].lastname}
+                    </Text>
+                    <Text style={styles.infoLabel}>Edad:</Text>
+                    <Text style={styles.infoValue}>{file[0]['patient_details'].age + ' años'}</Text>
+                    <Text style={styles.infoLabel}>Peso:</Text>
+                    <Text style={styles.infoValue}>{file[0]['patient_details'].weight} KG</Text>
+                  </View>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionHeaderText3}>Diagnóstico y tratamiento</Text>
+                  </View>
+                  <View style={styles.infoSection}>
+                    <Text style={styles.infoLabel}>Diagnóstico:</Text>
 
-                        }}
-                      >
-                        Valores
-                      </Text>
-                    </View>
-                    {/* grafica de frecuencia  */}
-                    <View>
-                    <LiveChart 
-                         params={{
-                           device:1,
-                           file:20,
-                           kd:'Toc'
-                         }}
+                    {file[0]['treatment'].diagnostic? (
+                      <Text style={styles.infoValue}>{file[0]['treatment'].diagnostic}</Text>
+                   ) : (
+                     <Text style={{ fontSize: 15 }}>No asignado aun</Text>
+                   )}
 
-                         info={{
-                          name:"temperatura",
-                          max:40,
-                          min:34
-                         }}
-                        />
-                    </View>
-                    
-                    {/* grafica de temperatura  */}
-                    <View>
-                        
-                    </View>
+                   <Text style={styles.infoLabel}>Síntomas:</Text>
+                   {file[0]['treatment'].symptoms? (
+                      <Text style={styles.infoValue}>{file[0]['treatment'].symptoms}</Text>
+                      
+                   ) : (
+                     <Text style={{ fontSize: 15 }}>No asignado aun</Text>
+                   )}
+
+                    <Text style={styles.infoLabel}>Medicamentos a dar:</Text>
+                    {file[0]['treatment'].medication? (
+                      <Text style={styles.infoValue}>{file[0]['treatment'].medication}</Text>
+                      
+                   ) : (
+                     <Text style={{ fontSize: 15 }}>No asignado aun</Text>
+                   )}
+
+                    <Text style={styles.infoLabel}>Administración del medicamento:</Text>
+                    {file[0]['treatment'].Administration? (
+                      <Text style={styles.infoValue}>{file[0]['treatment'].Administration}</Text>
+                      
+                   ) : (
+                     <Text style={{ fontSize: 15 }}>No asignado aun</Text>
+                   )}
+                    <Text style={styles.infoLabel}>Descripción del paciente:</Text>
+                    {file[0]['treatment'].Description? (
+                      <Text style={styles.infoValue}>{file[0]['treatment'].Description}</Text>
+                      
+                   ) : (
+                     <Text style={{ fontSize: 15 }}>No asignado aun</Text>
+                   )}
                   </View>
                 </View>
-             
               ) : (
                 <>
                   <Text>...loading</Text>
@@ -204,11 +155,89 @@ const Vistapac = () => {
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1, // Permite que el ScrollView crezca en altura
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'white'
+  },
+  cardContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    width: Dimensions.get('window').width * 0.9,
+    alignSelf: 'center',
+  },
+  logo: {
+    width: 250,
+    height: 52,
+    alignSelf: 'center',
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  loadingContainer: {
+    // Styles for loading container
+  },
+  sectionTitle: {
+    marginTop: 12,
+    marginBottom: 20,
+    fontSize: 22,
+    alignSelf: 'center',
+    marginLeft: -10,
+  },
+  sectionHeader: {
+    marginBottom: 14,
+    display: 'flex',
+    flexDirection: 'row',
+    backgroundColor: '#39a969',
+    width: '160%',
+    marginLeft: -65,
+    height: 32,
+  },
+  sectionHeaderText: {
+    marginTop: 7,
+    marginLeft: 155,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#fff',
+  },
+  sectionHeaderText2: {
+    marginTop: 7,
+    marginLeft: 183,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#fff',
+  },
+  sectionHeaderText3: {
+    marginTop: 7,
+    marginLeft: 150,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#fff',
+  },
+  infoSection: {
+    marginBottom: 14,
+    marginLeft: -10,
+    marginRight: -10,
+  },
+  infoLabel: {
+    marginTop: 0,
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  infoValue: {
+    marginTop: 0,
+    fontSize: 16,
+  },
+  contentContainer: {
+    width: '100%',
+    paddingHorizontal: 10,
   },
 });
 

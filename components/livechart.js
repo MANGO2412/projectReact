@@ -10,8 +10,8 @@ import {
   DataZoomComponent,
 } from 'echarts/components';
 import {SVGRenderer,SvgChart} from '@wuba/react-native-echarts'
-
-
+import { LineChart } from 'echarts/charts';
+import { GridComponent } from 'echarts/components';
 //initialize  the main graphic object
 echarts.use([
     SVGRenderer,
@@ -19,7 +19,9 @@ echarts.use([
     ToolboxComponent,
     TooltipComponent,
     LegendComponent,
-    DataZoomComponent
+    DataZoomComponent,
+    LineChart,
+    GridComponent
 ]);
 
 
@@ -28,9 +30,9 @@ const E_HEIGHT = 400;
 const E_WIDTH = Dimensions.get('screen').width;
 
 //define api function
-const getMesaure= async(device,patient)=>{
+const getMesaure= async(device,file)=>{
   try {
-    let resp=await fetch('http://172.18.3.210:3000/devices/getMesaure/dev/'+device+'/pat/'+patient)
+    let resp=await fetch('https://apifullheath.onrender.com/devices/getMesaure/dev/1/file/20')
     let data=await resp.json()
     console.log(data, 'line 35')
     return data;
@@ -49,7 +51,7 @@ export default function LiveChart(props){
                    async function  renderChart(){
                        let chart;
                        let inter;
-                       let data=await getMesaure(params.device,params.patient);
+                       let data=await getMesaure(params.device,params.file);
 
                        //configuration of the graphics
                        const option ={
@@ -120,7 +122,7 @@ export default function LiveChart(props){
                         })
                         chart.setOption(option)
                         inter=setInterval(async()=>{
-                          let newData=await getMesaure(params.device,params.patient);
+                          let newData=await getMesaure(params.device,params.file);
                           let newTimeStamp=newData.TimeStamp.pop(),
                               newValue=newData[params.kd].pop();
                           

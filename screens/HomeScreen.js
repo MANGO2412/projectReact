@@ -15,7 +15,8 @@ function HomeScreen({navigation}) {
     try {
 
       setLoading(true)
-      const response = await axios.get('https://apifullheath.onrender.com/files/byHospital/0/active'); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
+      const hospitalID=await SecureStore.getItemAsync('hospital')
+      const response = await axios.get('https://apifullheath.onrender.com/files/byHospital/'+hospitalID+'/active'); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
       let files = response.data.map((element)=>element.patient)
       await SecureStore.setItemAsync('files',JSON.stringify(files))
       setPatients(response.data)
@@ -59,11 +60,14 @@ function HomeScreen({navigation}) {
     }, [])
   );
 
- 
+  const changeView =async (id)=>{
+    await SecureStore.setItemAsync('fileID',String(id))
+    navigation.navigate('Vistapac')
+}
+
+
 
   return (
-    
-    
     <ScrollView >
    
      <View style={styles.titContainer}>
@@ -77,29 +81,29 @@ function HomeScreen({navigation}) {
       ):(
          <>
              {
-          patients.map((patient)=>(
-            <View key={patient['_id']}  style={styles.tarjeta}>
+          patients.map((file)=>(
+            <View key={file['_id']}  style={styles.tarjeta}>
                <View style={styles.nombre}>
                  <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Patient's name: </Text>
-                 <Text style={{ fontSize: 15 }}>{patient.patient_details.name} {patient.patient_details.lastname}</Text>
+                 <Text style={{ fontSize: 15 }}>{file.patient_details.name} {file.patient_details.lastname}</Text>
                </View>
                 <View style={styles.descrip}>
                    <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Doctor's assigned: </Text>
-                   {patient.doctor_details ? (
-                     <Text style={{ fontSize: 15 }}>{patient.doctor_details.Medical_info.name} {patient.doctor_details.Medical_info.lastname}</Text>
+                   {file.doctor_details ? (
+                     <Text style={{ fontSize: 15 }}>{file.doctor_details.Medical_info.name} {file.doctor_details.Medical_info.lastname}</Text>
                    ) : (
                      <Text style={{ fontSize: 15 }}>No asignado</Text>
                    )}
                </View>
-                <View style={{alignItems:'center'}}>
-                       <TouchableOpacity style={{backgroundColor: '#39a969',padding: 10,borderRadius: 8,marginTop: 20,}}
-                         onPress={() => {navigation.navigate('Receta');}}>
-                               <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
-                                 Ir a Receta
+                <View style={{alignItems:'center', display:'flex', flexDirection: 'row', justifyContent:'center', marginLeft:-120}}>
+                       <TouchableOpacity style={{backgroundColor: '#39a969',padding: 10,borderRadius: 8,marginTop: 20,marginRight:60}}
+                         onPress={() => {changeView(file['_id'])}}>
+                               <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold', marginRight: 0 }}>
+                                 Ver estado
                                </Text>
                        </TouchableOpacity>
                        <TouchableOpacity
-                         style={{backgroundColor: '#39a969',padding: 10,borderRadius: 8,marginTop: 20}} onPress={()=>{lossFile(patient['_id'])}}
+                         style={{backgroundColor: '#39a969',padding: 10,borderRadius: 8,marginTop: 20}} onPress={()=>{lossFile(file['_id'])}}
                        >
                          <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
                            Dar de Alta
@@ -133,15 +137,16 @@ const styles = StyleSheet.create({
   },
   tarjeta: {
     width: 500,
-    borderRadius: 5,
-    backgroundColor: '#fff',
-    padding: 10,
+    borderRadius: 0,
+    backgroundColor: '#ffff',
+    padding: 15,
     marginBottom: 20,
     gap: 5,
     borderWidth: 1,
-    borderColor: '#d9d9d9d9'
+    borderColor: 'black'
   },
   tit: {
+    marginTop:5, 
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -150,7 +155,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Corregir "Row" a "row"
     fontSize: 30
   },
-  descrip: {},
+  descrip: {display: 'flex',
+  flexDirection: 'row',},
   boton: {
     backgroundColor: '#fff',
     width: '60%',

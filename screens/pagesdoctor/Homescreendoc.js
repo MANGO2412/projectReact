@@ -1,6 +1,6 @@
-import {React, useEffect, useState} from 'react';
+import {React, useEffect, useState,useCallback} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-
+import { useFocusEffect } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 
@@ -9,8 +9,8 @@ function HomeScreendoc({navigation}) {
 
   const fetch = async () => {
     try {
-      //let id = await SecureStore.getItemAsync('user');
-      const response = await axios.get('https://apifullheath.onrender.com/files/assigned/' + 10); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
+      let id = await SecureStore.getItemAsync('user');
+      const response = await axios.get('https://apifullheath.onrender.com/files/assigned/' + id); // Reemplaza 'https://tu-api.com/patients' con la URL de tu API
       setData(response.data);
         } catch (error) {
            console.error('Error al cargar los pacientes:', error);
@@ -26,9 +26,15 @@ function HomeScreendoc({navigation}) {
     await SecureStore.setItemAsync('fileID',String(id))
     navigation.navigate('Vistapac')
 }
-  useEffect(() => {
-    fetch()
- }, []);
+  
+
+
+useFocusEffect(
+  useCallback(()=>{
+      fetch()
+  },[])
+)
+
 
 
 

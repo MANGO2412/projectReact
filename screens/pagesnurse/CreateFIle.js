@@ -72,41 +72,7 @@ export default function CreateFile({navigation}){
           <Text style={{ fontWeight: 'bold', fontSize: 15 }}>Patient's name: </Text>
           <Text style={{ fontSize: 15 }}>{item.name} {item.lastname}</Text>
         </View>
-        <View style={{alignItems:'center'}}>
-        <TouchableOpacity
-        style={{
-          backgroundColor: '#39a969',
-          padding: 10,
-          borderRadius: 8,
-          marginTop: 20,
-        }}
-        onPress={() => {
-          navigation.navigate('Receta');
-        }}
-      >
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
-          Ver Estado del paciente
-        </Text>
-      </TouchableOpacity>
-
-
-      <TouchableOpacity
-        style={{
-          backgroundColor: '#39a969',
-          padding: 10,
-          borderRadius: 8,
-          marginTop: 20,
-        }}
-        onPress={()=>{lossFile(patient['_id'])}}
-      >
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
-          Asignar nueva receta
-        </Text>
-      </TouchableOpacity>
-      
-        </View>
           </View>
-        
       </Text>
     )
 

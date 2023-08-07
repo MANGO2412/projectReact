@@ -50,7 +50,7 @@ const NurseTabsNavgator=()=>(
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'see files',
+          tabBarLabel: 'Home',
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="home" color={color} size={26} />
           ),
@@ -237,7 +237,6 @@ const NavContener = () => {
                  <Stack.Screen name="Receta" component={Receta}/>
                  <Stack.Screen name="CreateAddFile" component={Formpaciente}/>
                  <Stack.Screen name="Vistapac" component={Vistapac}/>
-             
              </Stack.Navigator>
             )
             }
